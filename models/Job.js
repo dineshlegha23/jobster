@@ -5,7 +5,7 @@ const JobSchema = mongoose.Schema(
     company: {
       type: String,
       required: [true, "Please provide company name"],
-      maxLength: 30,
+      maxLength: 40,
     },
     position: {
       type: String,
@@ -21,6 +21,16 @@ const JobSchema = mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: [true, "Please provide user"],
+    },
+    jobType: {
+      type: String,
+      enum: ["full-time", "part-time", "remote", "internship"],
+      default: "full-time",
+    },
+    jobLocation: {
+      type: String,
+      default: "India",
+      require: true,
     },
   },
   { timestamps: true }

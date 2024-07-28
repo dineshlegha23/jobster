@@ -6,8 +6,7 @@ const getAllJobs = async (req, res) => {
     user: { userId },
   } = req;
 
-  const jobs = await Job.find({ createdBy: userId }).select("company position");
-
+  const jobs = await Job.find({ createdBy: userId });
   res.json({ msg: "success", total: jobs.length, jobs });
 };
 
@@ -30,16 +29,16 @@ const updateJob = async (req, res) => {
   const {
     user: { userId },
     params: { id: jobId },
-    body: { company, position },
+    body: { company, position, jobLocation, jobType, status },
   } = req;
 
-  if (!company || !position) {
+  if (!company || !position || !jobLocation || !jobType || !status) {
     throw new BadRequestError("Kindly provide company and position");
   }
 
   const job = await Job.findOneAndUpdate(
     { _id: jobId, createdBy: userId },
-    { company, position },
+    { company, position, jobLocation, jobType, status },
     { new: true }
   );
   if (!job) {
