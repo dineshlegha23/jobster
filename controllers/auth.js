@@ -16,9 +16,13 @@ const login = async (req, res) => {
   const isMatch = await user.comparePassword(password);
   if (isMatch) {
     res.status(200).json({
-      msg: "success",
-      user: { name: user.name, email: user.email },
-      token: await user.createJWT(user.email),
+      user: {
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        location: user.location,
+        token: user.createJWT(user.email),
+      },
     });
   } else {
     throw new BadRequestError("Invalid Password");
@@ -39,9 +43,44 @@ const register = async (req, res) => {
   const user = await User.create({ name, email, password });
   res.status(201).json({
     msg: "success",
-    user: { name: user.name, email: user.email },
-    token: user.createJWT(user.email),
+    user: {
+      name: user.name,
+      lastName: user.lastName,
+      email: user.email,
+      location: user.location,
+      token: user.createJWT(user.email),
+    },
   });
 };
 
-module.exports = { login, logout, register };
+const updateUser = async (req, res) => {
+  const {
+    user: { userId },
+    body: { email, name, lastName, location },
+  } = req;
+
+  if (!name || !email || !lastName || !location) {
+    throw new BadRequestError("Pleasae provide all values");
+  }
+
+  const user = await User.findOne({ _id: userId });
+
+  user.email = email;
+  user.name = name;
+  user.lastName = lastName;
+  user.location = location;
+
+  await user.save();
+
+  res.status(200).json({
+    user: {
+      email: user.email,
+      name: user.name,
+      lastName: user.lastName,
+      location: user.location,
+      token: user.createJWT(user.email),
+    },
+  });
+};
+
+module.exports = { login, logout, register, updateUser };
