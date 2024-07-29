@@ -4,9 +4,41 @@ const { BadRequestError, NotFoundError } = require("../errors");
 const getAllJobs = async (req, res) => {
   const {
     user: { userId },
+    query: { sort, status, search, jobType },
   } = req;
 
-  const jobs = await Job.find({ createdBy: userId });
+  const userFilters = {
+    createdBy: userId,
+  };
+
+  if (search) {
+    userFilters.position = { $regex: search, $options: "i" };
+  }
+
+  if (status && status != "all") {
+    userFilters.status = status;
+  }
+
+  if (jobType && jobType != "all") {
+    userFilters.jobType = jobType;
+  }
+
+  let result = Job.find(userFilters);
+
+  if (sort === "latest") {
+    result = result.sort("-createdAt");
+  }
+  if (sort === "oldest") {
+    result = result.sort("createdAt");
+  }
+  if (sort === "a-z") {
+    result = result.sort("position");
+  }
+  if (sort === "z-a") {
+    result = result.sort("-position");
+  }
+
+  const jobs = await result;
   res.json({ msg: "success", total: jobs.length, jobs });
 };
 
