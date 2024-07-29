@@ -10,7 +10,12 @@ const authMiddleware = async (req, res, next) => {
     token = authorization.split(" ")[1];
     try {
       const user = await jwt.verify(token, process.env.JWT_SECRET);
-      req.user = user;
+      if (user.userId === "66a5fd6ba81714d36858112f") {
+        req.user = user;
+        req.testUser = true;
+      } else {
+        req.user = user;
+      }
     } catch (err) {
       throw new UnauthenticatedError("Invalid token, kindly login");
     }
